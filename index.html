@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特别的惊喜</title>
+    <style>
+        /* page1.html 的样式 */
+        body.page1 {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ffe66d, #81c784);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .image-container {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        #continue-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #continue-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+
+            #continue-button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+
+        /* page2.html 的样式 */
+        html,
+        body.page2 {
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        #background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ccf2f2;
+            z-index: 0;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            transition: transform 2s ease-in-out;
+        }
+
+        .balloon-wrapper {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
+            transition: top 0.05s linear;
+        }
+
+        .balloon {
+            width: 40px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #ff69b4, #d13ab2);
+            border-radius: 50% 50% 45% 45%;
+        }
+
+        .string {
+            width: 2px;
+            height: 37px;
+            background-color: white;
+        }
+
+        .balloon-letter {
+            font: bold 48px Calibri, sans-serif;
+            line-height: 1;
+            margin-top: 5px;
+        }
+
+        @keyframes ascend {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-150vh);
+                opacity: 0;
+            }
+        }
+
+        .custom-message-container {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        .custom-message-line {
+            font: bold 60px 'Arial Black', sans-serif;
+            color: #FF3399;
+            text-shadow:
+                2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            position: fixed;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font: bold 36px 'Arial', sans-serif;
+            color: #333;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .buttons-container {
+            position: fixed;
+            top: 65%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .action-button {
+            padding: 15px 30px;
+            font: bold 24px 'Arial', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .like-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .dislike-button {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-container.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .close-video {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+
+        video {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .golden-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 0%, rgba(255, 215, 0, 0) 70%);
+            z-index: 100;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 50px rgba(255, 215, 0, 0.7),
+                    0 0 100px rgba(255, 215, 0, 0.5),
+                    0 0 150px rgba(255, 215, 0, 0.3);
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.8;
+            }
+
+            100% {
+                box-shadow: 0 0 80px rgba(255, 215, 0, 0.9),
+                    0 0 160px rgba(255, 215, 0, 0.7),
+                    0 0 240px rgba(255, 215, 0, 0.5);
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .custom-image-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 101;
+        }
+
+        .birthday-char {
+            position: fixed;
+            font: bold 120px 'Arial Black', sans-serif;
+            color: #FF3399;
+            text-shadow:
+                3px 3px 0 #000,
+                -3px -3px 0 #000,
+                3px -3px 0 #000,
+                -3px 3px 0 #000;
+            z-index: 300;
+            opacity: 0;
+            transform: translateY(-100px);
+            transition: none;
+        }
+
+        .birthday-char.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.3s ease-out;
+        }
+
+        .dust-particle {
+            position: absolute;
+            background-color: rgba(150, 100, 50, 0.6);
+            border-radius: 50%;
+            z-index: 301;
+            pointer-events: none;
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 51, 153, 0.9);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 51, 153, 0.5);
+            z-index: 200;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: bold;
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 51, 153, 0.7);
+        }
+
+        .music-control i {
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+
+        .music-control span {
+            font-size: 14px;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 480px) {
+            .custom-message-container {
+                top: 45%;
+            }
+
+            .custom-message-line {
+                font-size: 36px;
+                text-shadow:
+                    1.5px 1.5px 0 #000,
+                    -1.5px -1.5px 0 #000,
+                    1.5px -1.5px 0 #000,
+                    -1.5px 1.5px 0 #000;
+                margin-bottom: 5px;
+            }
+
+            .question {
+                font-size: 24px;
+                top: 55%;
+            }
+
+            .action-button {
+                font-size: 18px;
+                padding: 10px 20px;
+            }
+
+            .buttons-container {
+                gap: 10px;
+                top: 65%;
+            }
+
+            .birthday-char {
+                font-size: 60px;
+                text-shadow:
+                    2px 2px 0 #000,
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000;
+            }
+
+            .music-control {
+                width: 60px;
+                height: 60px;
+            }
+
+            .music-control i {
+                font-size: 18px;
+            }
+
+            .music-control span {
+                font-size: 12px;
+            }
+
+            .golden-glow {
+                width: 250px;
+                height: 250px;
+            }
+        }
+
+        /* 初始状态隐藏 page2 的元素 */
+        #page2-content {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="page1">
+    <!-- page1 的内容 -->
+    <div id="page1-content">
+        <div class="container">
+            <div class="image-container">
+                <img src="your-image.jpg" alt="生日快乐">
+            </div>
+            <button id="continue-button">点我继续</button>
+        </div>
+    </div>
+    <!-- page2 的内容 -->
+    <div id="page2-content">
+        <audio id="background-music" loop>
+            <source src="中国交响乐团 - 春节序曲.mp3" type="audio/mp3">
+            您的浏览器不支持音频播放。
+        </audio>
+
+        <div id="music-control" class="music-control">
+            <i id="music-icon" class="fa fa-music"></i>
+            <span>点我</span>
+        </div>
+
+        <div id="background-overlay"></div>
+        <canvas id="canvas"></canvas>
+        <div id="custom-message" class="custom-message-container" style="display: none;">
+            <div class="custom-message-line">骗你的拽姐</div>
+            <div class="custom-message-line">根本没有蛋糕！</div>
+        </div>
+        <div id="question" class="question" style="display: none;">喜欢吗？</div>
+        <div id="buttons-container" class="buttons-container" style="display: none;">
+            <button id="like-button" class="action-button like-button">喜欢</button>
+            <button id="dislike-button" class="action-button dislike-button">不喜欢</button>
+        </div>
+        <div id="video-container" class="video-container">
+            <span id="close-video" class="close-video">&times;</span>
+            <video id="custom-video" controls>
+                <source src="生日瑞克1.mp4" type="video/mp4">
+                您的浏览器不支持视频播放。
+            </video>
+        </div>
+        <audio id="stamp-sound" preload="auto">
+            <source src="https://assets.mixkit.co/sfx/preview/mixkit-stamp-ink-1149.mp3" type="audio/mp3">
+        </audio>
+    </div>
+
+    <script>
+        // 获取继续按钮元素
+        const continueButton = document.getElementById('continue-button');
+        const page1Content = document.getElementById('page1-content');
+        const page2Content = document.getElementById('page2-content');
+
+        // 为按钮添加点击事件监听器
+        continueButton.addEventListener('click', () => {
+            // 隐藏 page1 内容
+            page1Content.style.display = 'none';
+            // 显示 page2 内容
+            page2Content.style.display = 'block';
+            // 切换 body 的类名
+            document.body.classList.remove('page1');
+            document.body.classList.add('page2');
+
+            // 以下是 page2.html 的 JavaScript 代码
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let width = canvas.width;
+            let height = canvas.height;
+
+            const GRAVITY = 0.05;
+            let fireworks = [];
+            let particles = [];
+            let textParticlesList = [];
+
+            const startTime = performance.now();
+            const TEXT = "HAPPY BIRTHDAY";
+            const FONT_SIZE = 48;
+            const FONT_STRING = `bold ${FONT_SIZE}px Calibri, sans-serif`;
+            const COLORS = ["#FF3", "#3F3", "#3FF", "#F3F", "#F66", "#6F6", "#66F", "#FF6"];
+            const PARTICLE_END = 7000;
+            const SOLID_FADE_START = PARTICLE_END;
+            const SOLID_FADE_DURATION = 1000;
+            const SOLID_FULLY_VISIBLE = SOLID_FADE_START + SOLID_FADE_DURATION;
+
+            let textPixelPositions = [];
+            let hoverIndex = -1;
+            let removedIndices = new Set();
+            let letterMetrics = [];
+            let allLettersRemoved = false;
+            let canvasTransitionComplete = false;
+            let messageDisplayed = false;
+
+            const CUSTOM_GIF_URL = "giphy.gif";
+
+            let birthdayChars = [];
+            const CHAR_ORDER = ['生', '日', '快', '乐'];
+            const CHAR_POSITIONS = [
+                { id: 'sheng', x: '5%', y: '5%' },
+                { id: 'ri', x: '5%', y: 'calc(85% - 1.5cm)' },
+                { id: 'kuai', x: '85%', y: '5%' },
+                { id: 'le', x: '85%', y: 'calc(85% - 1.5cm)' }
+            ];
+
+            const musicControl = document.getElementById('music-control');
+            const musicIcon = document.getElementById('music-icon');
+            const backgroundMusic = document.getElementById('background-music');
+            let isMusicPlaying = false;
+
+            function randomColor() {
+                return `hsl(${Math.random() * 360}, 100%, 70%)`;
+            }
+
+            class Particle {
+                constructor(x, y, vx, vy, color, isText = false, target = null) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = vx;
+                    this.vy = vy;
+                    this.color = color;
+                    this.alpha = 1;
+                    this.size = 2;
+                    this.isText = isText;
+                    this.target = target;
+                    this.activationTime = this.isText && this.target ? 3000 + Math.random() * 3500 : Infinity;
+                }
+
+                update() {
+                    const elapsed = performance.now() - startTime;
+                    let applyGravity = true, fade = true;
+
+                    if (this.isText && this.target) {
+                        applyGravity = fade = false;
+                        if (elapsed >= SOLID_FULLY_VISIBLE) this.alpha -= 0.2;
+                        else if (elapsed >= SOLID_FADE_START) {
+                            this.x = this.target.x;
+                            this.y = this.target.y;
+                            this.alpha = 1;
+                        } else if (elapsed >= this.activationTime) {
+                            const pull = 0.1;
+                            this.x += (this.target.x - this.x) * pull;
+                            this.y += (this.target.y - this.y) * pull;
+                            this.vx *= 0.85;
+                            this.vy *= 0.85;
+                            this.alpha = 1;
+                        }
+                    }
+
+                    if (applyGravity) {
+                        this.vy += GRAVITY;
+                        this.x += this.vx;
+                        this.y += this.vy;
+                    }
+
+                    if (fade) this.alpha *= 0.98;
+                }
+
+                draw(ctx) {
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, this.alpha);
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            class Firework {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = height;
+                    this.vx = (Math.random() - 0.5) * 3;
+                    this.vy = -Math.random() * 5 - 7;
+                    this.color = randomColor();
+                    this.exploded = false;
+                    this.explodeHeight = height * (0.2 + Math.random() * 0.5);
+                }
+
+                update() {
+                    if (!this.exploded) {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        this.vy += GRAVITY;
+                        if (this.vy >= 0 || this.y < this.explodeHeight) {
+                            this.explode();
+                            this.exploded = true;
+                        }
+                    }
+                }
+
+                explode() {
+                    const count = 400;
+                    const elapsed = performance.now() - startTime;
+                    const validTime = elapsed > 3000 && elapsed < 6500;
+                    const MAX_TEXT_PARTICLES_PER_EXPLOSION = 5;
+                    let usedTextCount = 0;
+                    const canFormText = validTime && this.y <= height * 0.35;
+
+                    for (let i = 0; i < count; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = Math.random() * 3 + 1;
+                        const vx = Math.cos(angle) * speed;
+                        const vy = Math.sin(angle) * speed;
+
+                        let useForText = false;
+                        let target = null;
+                        let particleColor = this.color;
+
+                        if (canFormText && textPixelPositions.length > 0 && usedTextCount < MAX_TEXT_PARTICLES_PER_EXPLOSION) {
+                            useForText = true;
+                            const randIndex = Math.floor(Math.random() * textPixelPositions.length);
+                            target = textPixelPositions.splice(randIndex, 1)[0];
+                            particleColor = randomColor();
+                            usedTextCount++;
+                        }
+
+                        const p = new Particle(this.x, this.y, vx, vy, particleColor, useForText, target);
+                        particles.push(p);
+                        if (useForText) textParticlesList.push(p);
+                    }
+                }
+
+                draw(ctx) {
+                    if (!this.exploded) {
+                        ctx.save();
+                        ctx.fillStyle = this.color;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                }
+            }
+
+            function generateTextPixels() {
+                const offCanvas = document.createElement("canvas");
+                const offCtx = offCanvas.getContext("2d");
+                offCanvas.width = width;
+                offCanvas.height = height;
+                offCtx.font = FONT_STRING;
+                offCtx.textAlign = "center";
+                offCtx.textBaseline = "middle";
+                offCtx.fillStyle = "white";
+                offCtx.fillText(TEXT, width / 2, height / 2);
+                const imgData = offCtx.getImageData(0, 0, width, height).data;
+
+                textPixelPositions = [];
+                for (let y = 0; y < height; y += 6) {
+                    for (let x = 0; x < width; x += 6) {
+                        if (imgData[(y * width + x) * 4 + 3] > 128)
+                            textPixelPositions.push({ x, y });
+                    }
+                }
+
+                for (let i = textPixelPositions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [textPixelPositions[i], textPixelPositions[j]] = [textPixelPositions[j], textPixelPositions[i]];
+                }
+            }
+
+            function drawSolidText(progress = 1) {
+                ctx.save();
+                ctx.font = FONT_STRING;
+                ctx.textBaseline = "middle";
+                ctx.globalAlpha = Math.max(0, Math.min(1, progress));
+                ctx.textAlign = "left";
+                const textToDraw = TEXT;
+                const metrics = ctx.measureText(textToDraw);
+                let currentX = width / 2 - metrics.width / 2;
+                letterMetrics = [];
+
+                for (let i = 0; i < textToDraw.length; i++) {
+                    const char = textToDraw[i];
+                    const charWidth = ctx.measureText(char).width;
+                    const x = currentX + charWidth / 2;
+
+                    if (!removedIndices.has(i)) {
+                        ctx.save();
+                        ctx.translate(x, height / 2);
+                        ctx.scale(i === hoverIndex ? 1.3 : 1, i === hoverIndex ? 1.3 : 1);
+                        ctx.fillStyle = COLORS[i % COLORS.length];
+                        ctx.fillText(char, -charWidth / 2, 0);
+                        ctx.restore();
+                    }
+
+                    letterMetrics[i] = { x: currentX, w: charWidth, char, color: COLORS[i % COLORS.length] };
+                    currentX += charWidth;
+                }
+
+                ctx.restore();
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                ctx.fillStyle = "rgba(0,0,0,0.15)";
+                ctx.fillRect(0, 0, width, height);
+                const elapsed = performance.now() - startTime;
+
+                if (elapsed < 6000 && Math.random() < 0.06) fireworks.push(new Firework());
+
+                fireworks.forEach(f => { f.update(); f.draw(ctx); });
+                particles.forEach(p => { p.update(); p.draw(ctx); });
+                particles = particles.filter(p => p.alpha > 0);
+
+                if (elapsed >= SOLID_FADE_START) {
+                    const p = Math.min(1, (elapsed - SOLID_FADE_START) / SOLID_FADE_DURATION);
+                    drawSolidText(p);
+                }
+            }
+
+            function toggleMusic() {
+                if (isMusicPlaying) {
+                    backgroundMusic.pause();
+                    musicIcon.className = "fa fa-music";
+                } else {
+                    backgroundMusic.play()
+                       .then(() => {
+                            musicIcon.className = "fa fa-pause";
+                            setTimeout(() => {
+                                musicControl.style.transition = 'all 0.5s ease-out';
+                                musicControl.style.opacity = '0';
+                                musicControl.style.transform = 'translateY(50px) scale(0.5)';
+                                setTimeout(() => {
+                                    musicControl.style.display = 'none';
+                                }, 500);
+                            }, 500);
+                        })
+                       .catch(error => {
+                            console.error("播放音乐时出错:", error);
+                            alert("无法自动播放音乐，请手动点击播放按钮");
+                        });
+                }
+                isMusicPlaying = !isMusicPlaying;
+            }
+
+            generateTextPixels();
+            animate();
+
+            musicControl.addEventListener('click', toggleMusic);
+            musicControl.addEventListener('touchstart', toggleMusic);
+
+            canvas.addEventListener("mousemove", (e) => {
+                if (performance.now() - startTime < SOLID_FULLY_VISIBLE) return;
+                const x = e.clientX;
+                const y = e.clientY;
+                hoverIndex = -1;
+                for (let i in letterMetrics) {
+                    const m = letterMetrics[i];
+                    if (!removedIndices.has(+i) && x >= m.x && x <= m.x + m.w && Math.abs(y - height / 2) < FONT_SIZE / 2) {
+                        hoverIndex = +i;
+                        break;
+                    }
+                }
+            });
+
+            canvas.addEventListener('transitionend', () => {
+                if (canvas.style.transform === 'translateY(-100%)') {
+                    canvasTransitionComplete = true;
+                    document.body.insertAdjacentHTML('beforeend', `
+          <div id="click-hint" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; color: #333; text-align: center; z-index: 5;">
+            点击任意位置生成生日蛋糕
+          </div>
+        `);
+                }
+            });
+
+            canvas.addEventListener("click", (e) => {
+                const elapsed = performance.now() - startTime;
+
+                if (!allLettersRemoved && elapsed >= SOLID_FULLY_VISIBLE) {
+                    if (hoverIndex === -1 || removedIndices.has(hoverIndex)) return;
+                    const m = letterMetrics[hoverIndex];
+
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "balloon-wrapper";
+                    wrapper.style.left = `${m.x + m.w / 2 - 20}px`;
+                    wrapper.style.top = `0px`;
+
+                    const balloon = document.createElement("div");
+                    balloon.className = "balloon";
+                    const string = document.createElement("div");
+                    string.className = "string";
+                    wrapper.appendChild(balloon);
+                    wrapper.appendChild(string);
+                    document.body.appendChild(wrapper);
+
+                    const targetTop = height / 2 - 60 - 37;
+                    let currentTop = 0;
+                    function drop() {
+                        currentTop += 5;
+                        wrapper.style.top = `${currentTop}px`;
+                        if (currentTop < targetTop) {
+                            requestAnimationFrame(drop);
+                        } else {
+                            const letter = document.createElement("div");
+                            letter.className = "balloon-letter";
+                            letter.innerText = m.char;
+                            letter.style.color = m.color;
+                            wrapper.appendChild(letter);
+                            wrapper.style.animation = "ascend 2s ease-in forwards";
+                            removedIndices.add(hoverIndex);
+
+                            if (removedIndices.size === TEXT.length) {
+                                allLettersRemoved = true;
+                                setTimeout(() => {
+                                    canvas.style.transform = 'translateY(-100%)';
+                                }, 1000);
+                            }
+
+                            setTimeout(() => wrapper.remove(), 3000);
+                        }
+                    }
+                    drop();
+                }
+            });
+
+            canvas.addEventListener("touchstart", (e) => {
+                const elapsed = performance.now() - startTime;
+
+                if (!allLettersRemoved && elapsed >= SOLID_FULLY_VISIBLE) {
+                    const touch = e.touches[0];
+                    const x = touch.clientX;
+                    const y = touch.clientY;
+                    hoverIndex = -1;
+                    for (let i in letterMetrics) {
+                        const m = letterMetrics[i];
+                        if (!removedIndices.has(+i) && x >= m.x && x <= m.x + m.w && Math.abs(y - height / 2) < FONT_SIZE / 2) {
+                            hoverIndex = +i;
+                            break;
+                        }
+                    }
+                    if (hoverIndex === -1 || removedIndices.has(hoverIndex)) return;
+                    const m = letterMetrics[hoverIndex];
+
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "balloon-wrapper";
+                    wrapper.style.left = `${m.x + m.w / 2 - 20}px`;
+                    wrapper.style.top = `0px`;
+
+                    const balloon = document.createElement("div");
+                    balloon.className = "balloon";
+                    const string = document.createElement("div");
+                    string.className = "string";
+                    wrapper.appendChild(balloon);
+                    wrapper.appendChild(string);
+                    document.body.appendChild(wrapper);
+
+                    const targetTop = height / 2 - 60 - 37;
+                    let currentTop = 0;
+                    function drop() {
+                        currentTop += 5;
+                        wrapper.style.top = `${currentTop}px`;
+                        if (currentTop < targetTop) {
+                            requestAnimationFrame(drop);
+                        } else {
+                            const letter = document.createElement("div");
+                            letter.className = "balloon-letter";
+                            letter.innerText = m.char;
+                            letter.style.color = m.color;
+                            wrapper.appendChild(letter);
+                            wrapper.style.animation = "ascend 2s ease-in forwards";
+                            removedIndices.add(hoverIndex);
+
+                            if (removedIndices.size === TEXT.length) {
+                                allLettersRemoved = true;
+                                setTimeout(() => {
+                                    canvas.style.transform = 'translateY(-100%)';
+                                }, 1000);
+                            }
+
+                            setTimeout(() => wrapper.remove(), 3000);
+                        }
+                    }
+                    drop();
+                }
+            });
+
+            document.addEventListener("click", (e) => {
+                const hint = document.getElementById('click-hint');
+                if (allLettersRemoved && canvasTransitionComplete && hint && !messageDisplayed) {
+                    hint.remove();
+
+                    // 显示自定义消息
+                    const messageContainer = document.getElementById('custom-message');
+                    messageContainer.style.display = 'block';
+
+                    // 添加动画效果
+                    const messageLines = messageContainer.querySelectorAll('.custom-message-line');
+                    messageLines.forEach((line, index) => {
+                        line.style.opacity = '0';
+                        line.style.transform = 'translateY(20px)';
+                        line.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+
+                        setTimeout(() => {
+                            line.style.opacity = '1';
+                            line.style.transform = 'translateY(0)';
+                        }, 300 * index);
+                    });
+
+                    // 2秒后显示问题
+                    setTimeout(() => {
+                        document.getElementById('question').style.display = 'block';
+
+                        // 再1秒后显示按钮
+                        setTimeout(() => {
+                            document.getElementById('buttons-container').style.display = 'flex';
+                            messageDisplayed = true;
+                        }, 1000);
+                    }, 2000);
+                }
+            });
+
+            document.addEventListener("touchstart", (e) => {
+                const hint = document.getElementById('click-hint');
+                if (allLettersRemoved && canvasTransitionComplete && hint && !messageDisplayed) {
+                    hint.remove();
+
+                    // 显示自定义消息
+                    const messageContainer = document.getElementById('custom-message');
+                    messageContainer.style.display = 'block';
+
+                    // 添加动画效果
+                    const messageLines = messageContainer.querySelectorAll('.custom-message-line');
+                    messageLines.forEach((line, index) => {
+                        line.style.opacity = '0';
+                        line.style.transform = 'translateY(20px)';
+                        line.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+
+                        setTimeout(() => {
+                            line.style.opacity = '1';
+                            line.style.transform = 'translateY(0)';
+                        }, 300 * index);
+                    });
+
+                    // 2秒后显示问题
+                    setTimeout(() => {
+                        document.getElementById('question').style.display = 'block';
+
+                        // 再1秒后显示按钮
+                        setTimeout(() => {
+                            document.getElementById('buttons-container').style.display = 'flex';
+                            messageDisplayed = true;
+                        }, 1000);
+                    }, 2000);
+                }
+            });
+
+            function createBirthdayChars() {
+                const container = document.createElement('div');
+                container.id = 'birthday-chars-container';
+                document.body.appendChild(container);
+
+                CHAR_POSITIONS.forEach((pos, index) => {
+                    const charElement = document.createElement('div');
+                    charElement.id = pos.id;
+                    charElement.className = 'birthday-char';
+                    charElement.textContent = CHAR_ORDER[index];
+                    charElement.style.left = pos.x;
+                    charElement.style.top = pos.y;
+                    container.appendChild(charElement);
+                    birthdayChars.push(charElement);
+                });
+            }
+
+            function playStampSound() {
+                const sound = document.getElementById('stamp-sound');
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Audio play failed:", e));
+            }
+
+            function createDustParticles(x, y, size) {
+                const DUST_COUNT = 15;
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.left = '0';
+                container.style.top = '0';
+                container.style.width = '100%';
+                container.style.height = '100%';
+                container.style.pointerEvents = 'none';
+                container.style.zIndex = '301';
+                document.body.appendChild(container);
+
+                for (let i = 0; i < DUST_COUNT; i++) {
+                    const dust = document.createElement('div');
+                    dust.className = 'dust-particle';
+
+                    const dustSize = 2 + Math.random() * 6;
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 10 + Math.random() * 30;
+                    const startX = x + Math.cos(angle) * distance;
+                    const startY = y + Math.sin(angle) * distance;
+
+                    dust.style.width = `${dustSize}px`;
+                    dust.style.height = `${dustSize}px`;
+                    dust.style.left = `${startX}px`;
+                    dust.style.top = `${startY}px`;
+                    dust.style.opacity = '0';
+
+                    container.appendChild(dust);
+
+                    setTimeout(() => {
+                        dust.style.opacity = '1';
+                        dust.style.transition = `all 0.8s cubic-bezier(0.1, 0.7, 0.1, 1)`;
+
+                        const moveAngle = angle + (Math.random() * 0.5 - 0.25) * Math.PI;
+                        const moveDistance = 20 + Math.random() * 40;
+                        const endX = startX + Math.cos(moveAngle) * moveDistance;
+                        const endY = startY + Math.sin(moveAngle) * moveDistance;
+
+                        dust.style.left = `${endX}px`;
+                        dust.style.top = `${endY}px`;
+                        dust.style.opacity = '0';
+
+                        setTimeout(() => dust.remove(), 800);
+                    }, 10 * i);
+                }
+
+                setTimeout(() => container.remove(), 1000);
+            }
+
+            function showBirthdayChars() {
+                createBirthdayChars();
+
+                CHAR_POSITIONS.forEach((pos, index) => {
+                    setTimeout(() => {
+                        const char = document.getElementById(pos.id);
+                        const rect = char.getBoundingClientRect();
+
+                        playStampSound();
+                        createDustParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, rect.width);
+
+                        char.classList.add('visible');
+                    }, index * 800);
+                });
+            }
+
+            function handleLikeClick() {
+                document.getElementById('custom-message').style.display = 'none';
+                document.getElementById('question').style.display = 'none';
+                document.getElementById('buttons-container').style.display = 'none';
+
+                const goldenGlow = document.createElement('div');
+                goldenGlow.className = 'golden-glow';
+                document.body.appendChild(goldenGlow);
+
+                createGlowParticles();
+
+                setTimeout(() => {
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'custom-image-container';
+
+                    imageContainer.innerHTML = `
+            <img src="${CUSTOM_GIF_URL}" alt="自定义生日图片" 
+                 style="max-width:100%; max-height:100%; object-fit: contain; 
+                        border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        transform-origin: center; transform: scale(0); opacity: 0;">
+          `;
+                    document.body.appendChild(imageContainer);
+
+                    requestAnimationFrame(() => {
+                        const img = imageContainer.querySelector('img');
+                        img.style.transition = 'transform 1.5s cubic-bezier(0.1, 0.7, 0.1, 1), opacity 1.5s ease-out';
+                        img.style.transform = 'scale(1)';
+                        img.style.opacity = '1';
+                    });
+
+                    setTimeout(() => {
+                        goldenGlow.style.opacity = '0';
+                        goldenGlow.style.transition = 'opacity 1.5s ease-out';
+                        setTimeout(() => {
+                            goldenGlow.remove();
+                            showBirthdayChars();
+                        }, 1500);
+                    }, 3000);
+
+                }, 1500);
+
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        const firework = new Firework();
+                        firework.x = Math.random() * width;
+                        firework.y = height;
+                        fireworks.push(firework);
+                    }, i * 400);
+                }
+            }
+            document.getElementById('like-button').addEventListener('click', handleLikeClick);
+            document.getElementById('like-button').addEventListener('touchstart', handleLikeClick);
+
+            function createGlowParticles() {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const particleCount = 100;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 150;
+                    const size = 3 + Math.random() * 5;
+                    const duration = 2000 + Math.random() * 3000;
+                    const delay = Math.random() * 2000;
+
+                    const particle = document.createElement('div');
+                    particle.style.position = 'fixed';
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.borderRadius = '50%';
+                    particle.style.backgroundColor = `rgba(255, 215, 0, ${0.5 + Math.random() * 0.5})`;
+                    particle.style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.8)';
+                    particle.style.left = `${centerX}px`;
+                    particle.style.top = `${centerY}px`;
+                    particle.style.transform = 'translate(-50%, -50%)';
+                    particle.style.opacity = '0';
+                    particle.style.zIndex = '100';
+                    particle.style.transition = `all ${duration}ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
+
+                    document.body.appendChild(particle);
+
+                    setTimeout(() => {
+                        particle.style.left = `${centerX + Math.cos(angle) * distance}px`;
+                        particle.style.top = `${centerY + Math.sin(angle) * distance}px`;
+                        particle.style.opacity = '1';
+
+                        setTimeout(() => {
+                            particle.style.opacity = '0';
+                            setTimeout(() => particle.remove(), 500);
+                        }, duration - 500);
+                    }, delay);
+                }
+            }
+
+            function handleDislikeClick() {
+                document.getElementById('video-container').classList.add('show');
+                document.getElementById('custom-video').play();
+            }
+            document.getElementById('dislike-button').addEventListener('click', handleDislikeClick);
+            document.getElementById('dislike-button').addEventListener('touchstart', handleDislikeClick);
+
+            function closeVideo() {
+                document.getElementById('video-container').classList.remove('show');
+                document.getElementById('custom-video').pause();
+            }
+            document.getElementById('close-video').addEventListener('click', closeVideo);
+            document.getElementById('close-video').addEventListener('touchstart', closeVideo);
+
+            window.addEventListener("resize", () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                width = canvas.width;
+                height = canvas.height;
+                textPixelPositions = [];
+                generateTextPixels();
+            });
+        });
+    </script>
+</body>
+
+</html>
